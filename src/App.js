@@ -19,11 +19,17 @@ const initialGameBoard = [
   [null, null, null],
 ];
 
-let winner;
-let gameBoard = [...initialGameBoard.map(array => [...array])];
+let PLAYERS = {
+  'X' : 'Player 1',
+  'O' : 'Player 2'
+}
 
 function App() {
+  let winner;
+  let gameBoard = [...initialGameBoard.map(array => [...array])];
+  
   const [gameTurns, setGameTurns] = useState([]);
+  const [player, setPlayer] = useState(PLAYERS);
 
   const activePlayer = derivedActivePlayer(gameTurns);
 
@@ -41,7 +47,7 @@ function App() {
     const thirdSquareSymbol = gameBoard[combination[2].row][combination[2].column];
   
     if(firstSquareSymbol && firstSquareSymbol === secondSquareSymbol && firstSquareSymbol === thirdSquareSymbol){
-      winner = firstSquareSymbol;
+      winner = player[firstSquareSymbol];
     }
   }
 
@@ -56,17 +62,28 @@ function App() {
     })
   }
 
+  function handleNameChange(symbol, newName){
+    setPlayer(prevPlayer => {
+      return {
+        ...prevPlayer,
+        [symbol] : newName
+      };
+    })
+  }
+
   function handleRestart(){
-    setGameTurns();
+    setGameTurns([]);
   }
 
   return (
     <main>
-      <h1>React Tic-Tac-Toe</h1>
+      <header>
+      <img src='game-logo.png'></img>
+      </header>
       <div id="game-container">
         <ol id="players" className="highlight-player">
-          <Player defaultName="Player 1" symbol="X" isActive={activePlayer === 'X'}/>
-          <Player defaultName="Player 2" symbol="O" isActive={activePlayer === 'O'}/>
+          <Player defaultName="Player 1" symbol="X" isActive={activePlayer === 'X' } onNameChange={handleNameChange}/>
+          <Player defaultName="Player 2" symbol="O" isActive={activePlayer === 'O'} onNameChange={handleNameChange}/>
         </ol>
         {(winner || hasDraw) && <GameOver winner={winner} onRestart={handleRestart} />}
         <GameBoard onSelectSquare={handleSelectSquare} board={gameBoard}/>
